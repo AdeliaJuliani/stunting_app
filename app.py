@@ -1,12 +1,18 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="Prediksi Stunting",
+    page_title="Prediksi Stunting Balita",
+    page_icon="👶",
     layout="wide"
 )
 
-st.title("Sistem Prediksi Risiko Stunting Balita")
+st.title("👶 Sistem Prediksi Risiko Stunting Balita")
 
 st.markdown("""
-Aplikasi Data Mining untuk memprediksi risiko stunting pada balita menggunakan Random Forest.
+Aplikasi ini menggunakan algoritma Random Forest untuk memprediksi risiko stunting berdasarkan data antropometri balita.
+
+### Menu:
+- Dashboard
+- Evaluasi Model
+- Prediksi
 """)

@@ -2,61 +2,74 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
+st.title("📊 Dashboard")
+
 df = pd.read_excel("data/Overall Data.xlsx")
 
-df["Weight"] = pd.to_numeric(
-    df["Weight"],
-    errors="coerce"
+col1,col2,col3,col4 = st.columns(4)
+
+col1.metric(
+    "Total Data",
+    len(df)
 )
-
-st.title("Dashboard")
-
-col1, col2, col3 = st.columns(3)
-
-col1.metric("Jumlah Data", len(df))
 
 col2.metric(
     "Stunted",
-    len(df[df["Height for Age"] == "Stunted"])
+    len(df[df["Height for Age"]=="Stunted"])
 )
 
 col3.metric(
     "Not Stunted",
-    len(df[df["Height for Age"] == "Not Stunted"])
+    len(df[df["Height for Age"]=="Not Stunted"])
 )
 
-# Distribusi Gender
+col4.metric(
+    "Gender",
+    df["Gender"].nunique()
+)
 
-st.subheader("Distribusi Gender")
+# ===================================
+# Distribusi Stunting
+# ===================================
+
+st.subheader("Distribusi Status Stunting")
 
 fig, ax = plt.subplots()
 
-df["Gender"].value_counts().plot(
+df["Height for Age"].value_counts().plot(
     kind="bar",
     ax=ax
 )
 
 st.pyplot(fig)
 
-# Distribusi Stunting
+# ===================================
+# Distribusi Gender
+# ===================================
 
-st.subheader("Distribusi Stunting")
+st.subheader("Distribusi Gender")
 
 fig2, ax2 = plt.subplots()
 
-df["Height for Age"].value_counts().plot(
-    kind="bar",
+df["Gender"].value_counts().plot(
+    kind="pie",
+    autopct="%1.1f%%",
     ax=ax2
 )
 
 st.pyplot(fig2)
 
-# Histogram Umur
+# ===================================
+# Distribusi Umur
+# ===================================
 
 st.subheader("Distribusi Umur")
 
 fig3, ax3 = plt.subplots()
 
-ax3.hist(df["Age (Month)"])
+ax3.hist(
+    df["Age (Month)"],
+    bins=20
+)
 
 st.pyplot(fig3)

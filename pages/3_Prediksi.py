@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import joblib
 
+st.title("🔍 Prediksi Risiko Stunting")
+
 model = joblib.load(
     "model/model.pkl"
 )
@@ -13,8 +15,6 @@ target_encoder = joblib.load(
 gender_encoder = joblib.load(
     "model/gender_encoder.pkl"
 )
-
-st.title("Prediksi Risiko Stunting")
 
 gender = st.selectbox(
     "Jenis Kelamin",
@@ -30,7 +30,7 @@ age = st.number_input(
 weight = st.number_input(
     "Berat Badan (kg)",
     1.0,
-    50.0
+    40.0
 )
 
 height = st.number_input(
@@ -52,30 +52,60 @@ if st.button("Prediksi"):
         "Height":[height]
     })
 
-    pred = model.predict(data)
+    prediction = model.predict(data)
 
-    prob = model.predict_proba(data)
+    probability = model.predict_proba(data)
 
-    hasil = target_encoder.inverse_transform(pred)
+    result = target_encoder.inverse_transform(
+        prediction
+    )[0]
 
-    risiko = max(prob[0]) * 100
+    confidence = (
+        max(probability[0]) * 100
+    )
 
-    if hasil[0] == "Stunted":
+    st.subheader("Hasil Prediksi")
+
+    if result == "Stunted":
 
         st.error(
-            f"Prediksi : {hasil[0]}"
+            f"⚠️ {result}"
         )
 
     else:
 
         st.success(
-            f"Prediksi : {hasil[0]}"
+            f"✅ {result}"
         )
 
     st.write(
-        f"Tingkat Keyakinan Model : {risiko:.2f}%"
+        f"Tingkat Keyakinan Model : {confidence:.2f}%"
     )
 
     st.progress(
-        float(risiko/100)
+        confidence / 100
     )
+
+    # Interpretasi
+
+    st.subheader(
+        "Interpretasi"
+    )
+
+    if result == "Stunted":
+
+        st.warning("""
+        Balita memiliki indikasi risiko stunting.
+        
+        Disarankan:
+        - Konsultasi ke tenaga kesehatan
+        - Monitoring pertumbuhan rutin
+        - Perbaikan asupan gizi
+        """)
+
+    else:
+
+        st.info("""
+        Pertumbuhan balita berada pada kondisi normal berdasarkan model prediksi.
+        Tetap lakukan pemantauan rutin.
+        """)
