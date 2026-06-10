@@ -5,129 +5,121 @@ import joblib
 st.title("🔍 Prediksi Risiko Stunting")
 
 model = joblib.load(
-"model/model.pkl"
+    "model/model.pkl"
 )
 
 target_encoder = joblib.load(
-"model/target_encoder.pkl"
+    "model/target_encoder.pkl"
 )
 
 gender_encoder = joblib.load(
-"model/gender_encoder.pkl"
+    "model/gender_encoder.pkl"
 )
 
-col1,col2 = st.columns(2)
+col1, col2 = st.columns(2)
 
 with col1:
 
-```
-gender = st.selectbox(
-    "Jenis Kelamin",
-    ["M","F"]
-)
+    gender = st.selectbox(
+        "Jenis Kelamin",
+        ["M", "F"]
+    )
 
-age = st.number_input(
-    "Umur (bulan)",
-    1,
-    60
-)
-```
+    age = st.number_input(
+        "Umur (bulan)",
+        min_value=1,
+        max_value=60,
+        value=24
+    )
 
 with col2:
 
-```
-weight = st.number_input(
-    "Berat Badan (kg)",
-    1.0,
-    40.0
-)
+    weight = st.number_input(
+        "Berat Badan (kg)",
+        min_value=1.0,
+        max_value=40.0,
+        value=10.0
+    )
 
-height = st.number_input(
-    "Tinggi Badan (cm)",
-    30.0,
-    150.0
-)
-```
+    height = st.number_input(
+        "Tinggi Badan (cm)",
+        min_value=30.0,
+        max_value=150.0,
+        value=80.0
+    )
 
 st.divider()
 
 if st.button(
-"Prediksi",
-use_container_width=True
+    "Prediksi",
+    use_container_width=True
 ):
 
-```
-gender_value = gender_encoder.transform(
-    [gender]
-)[0]
+    gender_value = gender_encoder.transform(
+        [gender]
+    )[0]
 
-data = pd.DataFrame({
+    data = pd.DataFrame({
+        "Gender": [gender_value],
+        "Age (Month)": [age],
+        "Weight": [weight],
+        "Height": [height]
+    })
 
-    "Gender":[gender_value],
+    prediction = model.predict(data)
 
-    "Age (Month)":[age],
-
-    "Weight":[weight],
-
-    "Height":[height]
-
-})
-
-prediction = model.predict(data)
-
-probability = model.predict_proba(
-    data
-)
-
-result = target_encoder.inverse_transform(
-    prediction
-)[0]
-
-confidence = max(
-    probability[0]
-) * 100
-
-st.subheader(
-    "Hasil Prediksi"
-)
-
-if result == "Stunted":
-
-    st.error(
-        f"⚠️ Risiko Stunting ({confidence:.2f}%)"
+    probability = model.predict_proba(
+        data
     )
 
-else:
+    result = target_encoder.inverse_transform(
+        prediction
+    )[0]
 
-    st.success(
-        f"✅ Tidak Stunting ({confidence:.2f}%)"
+    confidence = max(
+        probability[0]
+    ) * 100
+
+    st.subheader(
+        "📋 Hasil Prediksi"
     )
 
-st.progress(
-    confidence / 100
-)
+    if result == "Stunted":
 
-st.write(
-    f"Tingkat Keyakinan Model: {confidence:.2f}%"
-)
+        st.error(
+            f"⚠️ Risiko Stunting ({confidence:.2f}%)"
+        )
 
-st.divider()
+    else:
 
-if result == "Stunted":
+        st.success(
+            f"✅ Tidak Stunting ({confidence:.2f}%)"
+        )
 
-    st.warning("""
-    Rekomendasi:
-    
-    - Konsultasi dengan tenaga kesehatan
-    - Monitoring pertumbuhan rutin
-    - Perbaikan asupan gizi
-    """)
+    st.progress(
+        confidence / 100
+    )
 
-else:
+    st.write(
+        f"Tingkat Keyakinan Model: {confidence:.2f}%"
+    )
 
-    st.info("""
-    Pertumbuhan balita terindikasi normal.
-    
-    Tetap lakukan pemantauan berkala.
-    """)
-```
+    st.divider()
+
+    if result == "Stunted":
+
+        st.warning("""
+Rekomendasi:
+
+- Konsultasi dengan tenaga kesehatan
+- Monitoring pertumbuhan rutin
+- Perbaikan asupan gizi
+""")
+
+    else:
+
+        st.info("""
+Pertumbuhan balita terindikasi normal.
+
+Tetap lakukan pemantauan berkala.
+""")
